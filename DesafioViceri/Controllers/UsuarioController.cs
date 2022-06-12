@@ -28,11 +28,11 @@ namespace DesafioViceri.Controllers
         {
             if (_context.Usuarios == null)
             {
-               return Problem("Entity set 'Repository.Usuarios'  is null.");
+                return Problem("Entity set 'Repository.Usuarios'  is null.");
             }
             if (_context.Usuarios.Count() == 0)
             {
-                return Ok ("Sem Usuários Cadastrados");
+                return Ok("Sem Usuários Cadastrados");
             }
             return await _context.Usuarios.ToListAsync();
         }
@@ -41,8 +41,8 @@ namespace DesafioViceri.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<UsuarioModel>> GetUsuarioModel(int id)
         {
-          if (_context.Usuarios == null)
-          {
+            if (_context.Usuarios == null)
+            {
                 return Problem("Entity set 'Repository.Usuarios'  is null.");
             }
             var usuarioModel = await _context.Usuarios.FindAsync(id);
@@ -56,34 +56,52 @@ namespace DesafioViceri.Controllers
         }
 
         // PUT: api/Usuario/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUsuarioModel(int id, UsuarioModel usuarioModel)
         {
             if (id != usuarioModel.UsuarioId)
             {
-                return BadRequest();
+                return BadRequest("UsuarioId Inválido");
+            }
+
+            var usuarioExiste = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(x => x.UsuarioId == id);
+
+            if (usuarioExiste == null)
+            {
+                return BadRequest("Usuário Não Encontrado");
+            }
+
+            var usuarios = _context.Usuarios.AsNoTracking().ToList();
+
+            if (usuarios.Count() == 0)
+            {
+                return BadRequest("Sem Usuários Cadastrados");
+            }
+
+            foreach (var usuario in usuarios)
+            {
+                if (usuarioModel.Email == usuario.Email && usuarioModel.CPF == usuario.CPF)
+                {
+                    return BadRequest("Erro ao Atualizar Usuario: \nEmail e CPF Já Cadastrado");
+                }
+                if (usuarioModel.Email == usuario.Email)
+                {
+                    return BadRequest("Erro ao Atualizar Usuario: \nEmail Já Cadastrado");
+                }
+                if (usuarioModel.CPF == usuario.CPF)
+                {
+                    return BadRequest("Erro ao Atualizar Usuario: \nCPF Já Cadastrado");
+                }
             }
 
             _context.Entry(usuarioModel).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
-            try
+            return Ok(new
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UsuarioModelExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+                message = "Usuário Atualizado com Sucesso",
+                data = usuarioModel
+            });
         }
 
         // POST: api/Usuario
