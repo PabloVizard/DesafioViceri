@@ -1,3 +1,5 @@
+using DesafioViceri.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +20,9 @@ builder.Services.AddControllersWithViews().AddNewtonsoftJson(options =>
     .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver
     = new DefaultContractResolver());
 
+builder.Services.AddDbContext<Repository>(
+    options => options.UseSqlServer
+    ("Data Source=DESKTOP-8TIN3VC;Initial Catalog=DesafioViceri;Integrated Security=True"));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
