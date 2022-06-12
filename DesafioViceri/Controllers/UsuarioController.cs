@@ -135,7 +135,11 @@ namespace DesafioViceri.Controllers
             _context.Usuarios.Add(usuarioModel);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUsuarioModel", new { id = usuarioModel.UsuarioId }, usuarioModel);
+            return Ok(new
+            {
+                message = "Usuário Cadastrado com Sucesso",
+                data = usuarioModel
+            });
         }
 
         // DELETE: api/Usuario/5
@@ -149,18 +153,16 @@ namespace DesafioViceri.Controllers
             var usuarioModel = await _context.Usuarios.FindAsync(id);
             if (usuarioModel == null)
             {
-                return NotFound();
+                return BadRequest("Usuário Não Encontrado");
             }
 
             _context.Usuarios.Remove(usuarioModel);
             await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
-
-        private bool UsuarioModelExists(int id)
-        {
-            return (_context.Usuarios?.Any(e => e.UsuarioId == id)).GetValueOrDefault();
+            return Ok(new
+            {
+                message = "Usuário Deletado com Sucesso"
+            });
         }
     }
 }
