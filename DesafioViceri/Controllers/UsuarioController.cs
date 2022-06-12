@@ -35,7 +35,7 @@ namespace DesafioViceri.Controllers
 
         // GET: api/Usuario/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<UsuarioModel>> GetUsuarioModel(Guid id)
+        public async Task<ActionResult<UsuarioModel>> GetUsuarioModel(int id)
         {
           if (_context.Usuarios == null)
           {
@@ -91,7 +91,26 @@ namespace DesafioViceri.Controllers
             {
                 return Problem("Entity set 'Repository.Usuarios'  is null.");
             }
-           
+            var usuarios = _context.Usuarios.ToList();
+
+            foreach (var usuario in usuarios)
+            {
+                if (usuarioModel.Email == usuario.Email && usuarioModel.CPF == usuario.CPF)
+                {
+                    return BadRequest("Erro ao cadastrar Usuario: \nEmail e CPF Já Cadastrado");
+                }
+                if (usuarioModel.Email == usuario.Email)
+                {
+                    return BadRequest("Erro ao cadastrar Usuario: \nEmail Já Cadastrado");
+                }
+                if (usuarioModel.CPF == usuario.CPF)
+                {
+                    return BadRequest("Erro ao cadastrar Usuario: \nCPF Já Cadastrado");
+                }
+            }
+
+            usuarioModel.Senha = CriptografiaService.ConvertToSha256Hash(usuarioModel.Senha);
+            _context.Usuarios.Add(usuarioModel);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetUsuarioModel", new { id = usuarioModel.UsuarioId }, usuarioModel);
@@ -99,7 +118,7 @@ namespace DesafioViceri.Controllers
 
         // DELETE: api/Usuario/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUsuarioModel(Guid id)
+        public async Task<IActionResult> DeleteUsuarioModel(int id)
         {
             if (_context.Usuarios == null)
             {
