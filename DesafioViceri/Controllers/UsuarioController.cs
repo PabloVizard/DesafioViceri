@@ -26,10 +26,14 @@ namespace DesafioViceri.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UsuarioModel>>> GetUsuarios()
         {
-          if (_context.Usuarios == null)
-          {
-              return NotFound();
-          }
+            if (_context.Usuarios == null)
+            {
+               return Problem("Entity set 'Repository.Usuarios'  is null.");
+            }
+            if (_context.Usuarios.Count() == 0)
+            {
+                return Ok ("Sem Usuários Cadastrados");
+            }
             return await _context.Usuarios.ToListAsync();
         }
 
@@ -39,8 +43,8 @@ namespace DesafioViceri.Controllers
         {
           if (_context.Usuarios == null)
           {
-              return NotFound();
-          }
+                return Problem("Entity set 'Repository.Usuarios'  is null.");
+            }
             var usuarioModel = await _context.Usuarios.FindAsync(id);
 
             if (usuarioModel == null)
@@ -122,7 +126,7 @@ namespace DesafioViceri.Controllers
         {
             if (_context.Usuarios == null)
             {
-                return NotFound();
+                return Problem("Entity set 'Repository.Usuarios'  is null.");
             }
             var usuarioModel = await _context.Usuarios.FindAsync(id);
             if (usuarioModel == null)
