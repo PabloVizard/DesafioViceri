@@ -1,0 +1,22 @@
+﻿#Inserir Usuario
+
+IF NOT EXISTS(SELECT 1 FROM Usuarios WHERE Email = 'teste@sql.com' or CPF = '123.123.123-00')
+INSERT into Usuarios(CPF, Nome, Email, Senha, DataNascimento)
+Values('123.123.123-00', 'Teste SQL', 'teste@sql.com','123456', GETDATE())  
+
+#Listar Usuarios
+
+SELECT * FROM Usuarios
+
+#Listar Usuarios por Id
+
+SELECT * FROM Usuarios WHERE UsuarioId = 1
+
+#Alterar Usuario por Id
+
+IF NOT EXISTS(SELECT 1 FROM Usuarios WHERE Email = 'teste2@sql.com' or CPF = '123.123.123-01')
+UPDATE Usuarios SET CPF = '123.123.123-01', Email = 'teste2@sql.com', Nome = 'Teste SQL 2', Senha = '123456' WHERE UsuarioId = 1
+
+#Deletar Usuario por Id
+
+DELETE Usuarios where UsuarioId = 1
