@@ -49,7 +49,7 @@ namespace DesafioViceri.Controllers
 
             if (usuarioModel == null)
             {
-                return Ok("Usuário Não Encontrado");
+                return BadRequest("Usuário Não Encontrado");
             }
 
             return usuarioModel;
