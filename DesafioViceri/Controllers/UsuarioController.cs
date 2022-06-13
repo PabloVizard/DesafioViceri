@@ -64,9 +64,9 @@ namespace DesafioViceri.Controllers
                 return BadRequest("UsuarioId Inválido");
             }
 
-            var usuarioExiste = await _context.Usuarios.AsNoTracking().FirstOrDefaultAsync(x => x.UsuarioId == id);
+            var usuarioExiste = await _context.Usuarios.AsNoTracking().AnyAsync(x => x.UsuarioId == id);
 
-            if (usuarioExiste == null)
+            if (!usuarioExiste)
             {
                 return BadRequest("Usuário Não Encontrado");
             }
@@ -78,20 +78,11 @@ namespace DesafioViceri.Controllers
                 return BadRequest("Sem Usuários Cadastrados");
             }
 
-            foreach (var usuario in usuarios)
+            var CpfEmailExistente = await _context.Usuarios.AsNoTracking().AnyAsync(x => x.CPF == usuarioModel.CPF || x.Email == usuarioModel.Email);
+
+            if (CpfEmailExistente)
             {
-                if (usuarioModel.Email == usuario.Email && usuarioModel.CPF == usuario.CPF)
-                {
-                    return BadRequest("Erro ao Atualizar Usuario: \nEmail e CPF Já Cadastrado");
-                }
-                if (usuarioModel.Email == usuario.Email)
-                {
-                    return BadRequest("Erro ao Atualizar Usuario: \nEmail Já Cadastrado");
-                }
-                if (usuarioModel.CPF == usuario.CPF)
-                {
-                    return BadRequest("Erro ao Atualizar Usuario: \nCPF Já Cadastrado");
-                }
+                return BadRequest("Erro ao cadastrar Usuario: \nEmail ou CPF Já Cadastrado");
             }
 
             _context.Entry(usuarioModel).State = EntityState.Modified;
@@ -105,7 +96,6 @@ namespace DesafioViceri.Controllers
         }
 
         // POST: api/Usuario
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<UsuarioModel>> PostUsuarioModel(UsuarioModel usuarioModel)
         {
@@ -113,22 +103,12 @@ namespace DesafioViceri.Controllers
             {
                 return Problem("Entity set 'Repository.Usuarios'  is null.");
             }
-            var usuarios = _context.Usuarios.ToList();
 
-            foreach (var usuario in usuarios)
+            var CpfEmailExistente = await _context.Usuarios.AsNoTracking().AnyAsync(x => x.CPF == usuarioModel.CPF || x.Email == usuarioModel.Email);
+
+            if (CpfEmailExistente)
             {
-                if (usuarioModel.Email == usuario.Email && usuarioModel.CPF == usuario.CPF)
-                {
-                    return BadRequest("Erro ao cadastrar Usuario: \nEmail e CPF Já Cadastrado");
-                }
-                if (usuarioModel.Email == usuario.Email)
-                {
-                    return BadRequest("Erro ao cadastrar Usuario: \nEmail Já Cadastrado");
-                }
-                if (usuarioModel.CPF == usuario.CPF)
-                {
-                    return BadRequest("Erro ao cadastrar Usuario: \nCPF Já Cadastrado");
-                }
+                return BadRequest("Erro ao cadastrar Usuario: \nEmail ou CPF Já Cadastrado");
             }
 
             usuarioModel.Senha = CriptografiaService.ConvertToSha256Hash(usuarioModel.Senha);
